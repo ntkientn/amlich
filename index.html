@@ -466,10 +466,10 @@
         <div class="useful-links-section">
             <div class="links-title">🔗 Liên Kết Hữu Ích:</div>
             <div class="links-grid">
-                <a href="https://ntkientn.github.io/mypage/healthcare/" target="_blank" class="useful-link-card">🏥 Chăm sóc Sức khỏe</a>
-                <a href="https://ntkientn.github.io/mypage/news/" target="_blank" class="useful-link-card">📰 Bản tin Tin tức</a>
-                <a href="https://ntkientn.github.io/AIhub/" target="_blank" class="useful-link-card">🤖 Trung tâm AI Hub</a>
-                <a href="https://ntkientn.github.io/knowledge/" target="_blank" class="useful-link-card">📚 Kho tàng Kiến thức</a>
+                <a href="https://ntkientn.github.io/health/" class="useful-link-card">🏥 Chăm sóc Sức khỏe</a>
+                <a href="https://ntkientn.github.io/mypage/news/" class="useful-link-card">📰 Bản tin Tin tức</a>
+                <a href="https://ntkientn.github.io/AIhub/" class="useful-link-card">🤖 Trung tâm AI Hub</a>
+                <a href="#" class="useful-link-card">📚 Kho tàng Kiến thức</a>
             </div>
         </div>
     </div>
@@ -505,20 +505,22 @@
         let currentDisplayDate = new Date(REAL_TODAY_YEAR, REAL_TODAY_MONTH - 1, REAL_TODAY_DAY); 
         let selectedDateToSchedule = null;
 
-        // Thuật toán bóc tách dữ liệu lịch Âm
+        // Thuật toán bóc tách dữ liệu lịch Âm và sinh lời khuyên phong thủy tự động
         function getLunarDate(day, month, year) {
             let a = Math.floor((14 - month) / 12);
             let y = year + 4800 - a;
             let m = month + 12 * a - 3;
             let jdn = day + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
             
+            // Tính toán chính xác Can Chi của Ngày dựa trên chu kỳ JDN liên tục
             let canDay = CAN[(jdn + 1) % 10];
             let chiDay = CHI[(jdn + 1) % 12];
             let canYear = CAN[(year + 6) % 10];
             let chiYear = CHI[(year + 2) % 12];
-
+        
             let lunarDay, lunarMonth, lunarYear;
-            
+            let canMonthStr = "Giáp Ngọ"; // Mặc định cho tháng 6/2026 mẫu
+        
             if (year === 2026 && month === 6) {
                 let offsetFrom18 = day - 18;
                 let lDay = 4 + offsetFrom18;
@@ -528,9 +530,11 @@
                 if (lDay <= 0) {
                     lunarMonth = 4;
                     lDay = 30 + lDay;
+                    canMonthStr = "Ất Tỵ"; // Tháng trước đó
                 } else if (lDay > 30) {
                     lunarMonth = 6;
                     lDay = lDay - 30;
+                    canMonthStr = "Ất Mùi"; // Tháng sau đó
                 }
                 lunarDay = lDay;
             } else {
@@ -540,22 +544,53 @@
                 lunarDay = (approxLunarDays % 30);
                 if (lunarDay <= 0) lunarDay += 30;
                 lunarMonth = Math.floor((approxLunarDays / 29.5) % 12) + 1;
-                lunarYear = 2026;
-                if(year < 2026) lunarYear = 2025;
-                if(year > 2026) lunarYear = 2027;
+                lunarYear = year;
+                canMonthStr = CAN[(year * 12 + month + 3) % 10] + " " + CHI[(month + 1) % 12];
             }
-
+        
+            // ==========================================================================
+            // NGÂN HÀNG LỜI KHUYÊN & GIỜ HOÀNG ĐẠO THAY ĐỔI THEO ĐỊA CHI NGÀY (ẨN/HIỆN ĐA DẠNG)
+            // ==========================================================================
             let kiengKy = "Nên làm việc thiện, giữ tâm ý hòa nhã thanh tịnh.";
-            if (chiDay === "Hợi" || chiDay === "Tý") kiengKy = "Tốt cho việc khai trương, cầu tài lộc hanh thông.";
-            if (chiDay === "Thìn" || chiDay === "Tuất") kiengKy = "Hạn chế động thổ hoặc khởi công xây dựng nhà cửa.";
-
+            let gioHoangDaoText = "Sửu (1-3), Thìn (7-9), Ngọ (11-13), Mùi (13-15), Tuất (19-21), Hợi (21-23)";
+        
+            if (chiDay === "Tý") {
+                kiengKy = "Ngày Hầu Tước: Tốt cho việc ký kết hợp đồng, mở mang cửa hàng, mưu cầu danh lợi.";
+                gioHoangDaoText = "Tý (23-1), Sửu (1-3), Mão (5-7), Ngọ (11-13), Thân (15-17), Dậu (17-19)";
+            } else if (chiDay === "Sửu") {
+                kiengKy = "Ngày Ngọc Đường: Thuận lợi cho việc dọn về nhà mới, may mặc, đi xa gặp quý nhân giúp đỡ.";
+                gioHoangDaoText = "Dần (3-5), Mão (5-7), Tỵ (9-11), Thân (15-17), Tuất (19-21), Hợi (21-23)";
+            } else if (chiDay === "Dần" || chiDay === "Mão") {
+                kiengKy = "Ngày Thanh Long: Rất tốt cho việc cưới hỏi, cầu phúc, thi cử hoặc khai trương đại cát.";
+                gioHoangDaoText = "Tý (23-1), Dần (3-5), Mão (5-7), Ngọ (11-13), Mùi (13-15), Dậu (17-19)";
+            } else if (chiDay === "Thìn") {
+                kiengKy = "Ngày Thiên Hình: Nên an phận thủ thường, tránh tranh chấp, kiêng kỵ việc động thổ xây dựng.";
+                gioHoangDaoText = "Dần (3-5), Thìn (7-9), Tỵ (9-11), Thân (15-17), Dậu (17-19), Hợi (21-23)";
+            } else if (chiDay === "Tỵ") {
+                kiengKy = "Ngày Minh Đường: Thích hợp hội họp thân nhân, cầu tài lộc, làm việc thiện tích đức.";
+                gioHoangDaoText = "Sửu (1-3), Thìn (7-9), Ngọ (11-13), Mùi (13-15), Tuất (19-21), Hợi (21-23)";
+            } else if (chiDay === "Ngọ") {
+                kiengKy = "Ngày Kim Quỹ: Trực khí tốt lành, thích hợp xuất hành hướng Nam, làm lễ bái tạ tổ tiên.";
+                gioHoangDaoText = "Tý (23-1), Sửu (1-3), Mão (5-7), Ngọ (11-13), Thân (15-17), Dậu (17-19)";
+            } else if (chiDay === "Mùi") {
+                kiengKy = "Ngày Bảo Quang: Sao tốt chiếu mệnh, thích hợp mua sắm tài sản lớn, chữa bệnh hay sửa sang nhà cửa.";
+                gioHoangDaoText = "Dần (3-5), Mão (5-7), Tỵ (9-11), Thân (15-17), Tuất (19-21), Hợi (21-23)";
+            } else if (chiDay === "Thân" || chiDay === "Dậu") {
+                kiengKy = "Ngày Chu Tước: Dễ phát sinh khẩu thiệt. Nên nhường nhịn, giữ hòa khí, tránh cho vay mượn tiền bạc.";
+                gioHoangDaoText = "Tý (23-1), Sửu (1-3), Thìn (7-9), Tỵ (9-11), Mùi (13-15), Tuất (19-21)";
+            } else if (chiDay === "Tuất" || chiDay === "Hợi") {
+                kiengKy = "Ngày Tư Mệnh: Trăm sự đều thuận, mở kho xuất hành đều hanh thông, vạn sự như ý.";
+                gioHoangDaoText = "Sửu (1-3), Thìn (7-9), Ngọ (11-13), Mùi (13-15), Tuất (19-21), Hợi (21-23)";
+            }
+        
             return {
                 lDay: lunarDay,
                 lMonth: lunarMonth,
                 lYear: lunarYear,
                 canChiDay: canDay + " " + chiDay,
-                canChiMonth: "Giáp Ngọ",
+                canChiMonth: canMonthStr,
                 canChiYear: canYear + " " + chiYear,
+                gioHoangDao: gioHoangDaoText,
                 kieng: kiengKy
             };
         }
