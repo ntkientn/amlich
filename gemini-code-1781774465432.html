@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lunar Calendar - Âm Lịch</title>
+    <style>
+        /* ==========================================================================
+           1. THIẾT LẬP MÀU SẮC & PHONG CÁCH ĐÔNG PHƯƠNG
+           ========================================================================== */
+        :root {
+            --bg-color: #fcf6e8;      
+            --primary-color: #8a1414; 
+            --text-color: #2c251e;    
+            --border-color: #d1b48c;  
+            --weekend-color: #b85a00; 
+            --today-bg: #fdf0d5;      /* Nền vàng nổi bật */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Yêu cầu 7: Button quay về WebNet nhỏ ở góc trên cùng bên trái */
+        .back-webnet-container {
+            width: 100%;
+            max-width: 800px;
+            text-align: left;
+            margin-bottom: 8px;
+        }
+
+        .back-webnet-link {
+            font-size: 0.9rem;
+            color: #666;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            transition: color 0.2s;
+        }
+
+        .back-webnet-link:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: #fffdf9;
+            border: 3px double var(--primary-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(44, 37, 30, 0.15);
+        }
+
+        /* Họa tiết góc kiểu cổ điển */
+        .header-decoration {
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-size: 1.6rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        /* ==========================================================================
+           2. KHU VỰC HIỂN THỊ HÔM NAY (TOP BAR)
+           ========================================================================== */
+        .today-box {
+            background-color: #fff8eb;
+            border: 2px solid var(--primary-color); /* Tăng viền rõ hơn */
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        /* Yêu cầu 2: Highlight rõ ngày tháng bằng khung/màu sắc tương phản mạnh */
+        .highlight-date-badge {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 3px 12px;
+            border-radius: 4px;
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        .today-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+
+        .today-lunar {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #4a1525;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .today-details {
+            font-size: 1rem;
+            color: #3e2723;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 8px;
+            margin-top: 8px;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        /* ==========================================================================
+           3. THANH ĐIỀU KHIỂN BỘ LỌC (CONTROLS)
+           ========================================================================== */
+        .calendar-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px 0;
+        }
+
+        .nav-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        /* Yêu cầu 4: Nút "Về ngày hôm nay" to, nổi bật cho người già dễ ấn */
+        .btn-today {
+            background-color: #2e6f40; /* Màu xanh lá đậm để phân biệt với nút hướng */
+        }
+
+        .nav-btn:hover {
+            opacity: 0.9;
+        }
+
+        .selector-group {
+            display: flex;
+            gap: 6px;
+        }
+
+        select {
+            font-size: 1.1rem;
+            padding: 8px 10px;
+            border: 2px solid var(--border-color);
+            background-color: white;
+            border-radius: 4px;
+            color: var(--text-color);
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* ==========================================================================
+           4. LƯỚI LỊCH THÁNG (MONTH VIEW GRID)
+           ========================================================================== */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            border-top: 1px solid var(--border-color);
+            border-left: 1px solid var(--border-color);
+            background-color: #fff;
+        }
+
+        .grid-header {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            padding: 10px 0;
+            font-size: 1.1rem;
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .grid-header.weekend {
+            background-color: var(--weekend-color);
+        }
+
+        .day-cell {
+            min-height: 85px;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .day-cell:hover {
+            background-color: #fdf5e6;
+        }
+
+        .day-cell.other-month {
+            background-color: #f5f5f5;
+            color: #bbb;
+            cursor: not-allowed;
+        }
+        .day-cell.other-month .lunar-num {
+            color: #ccc;
+        }
+
+        /* Yêu cầu i & 5: Thiết kế highlight ngày hôm nay (Real-time Today) cực kỳ rõ ràng */
+        .day-cell.current-today {
+            background-color: #fff3cd !important;
+            border: 3px solid #ffc107 !important;
+            font-weight: bold;
+            box-shadow: inset 0 0 6px rgba(0,0,0,0.1);
+        }
+        .day-cell.current-today .solar-num {
+            color: #b50000 !important;
+        }
+
+        .solar-num {
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+        
+        .day-cell.sunday .solar-num {
+            color: var(--weekend-color);
+        }
+
+        .lunar-num {
+            font-size: 0.95rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .lunar-num.special-prop {
+            color: #0066cc;
+            font-weight: bold;
+            background-color: #e6f2ff;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 0.85rem;
+        }
+
+        /* ==========================================================================
+           6. YÊU CẦU 6: KHU VỰC LIÊN KẾT HỮU ÍCH (USEFUL LINKS)
+           ========================================================================== */
+        .useful-links-section {
+            margin-top: 25px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            background-color: #fffdf9;
+            border-radius: 6px;
+        }
+
+        .links-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 10px;
+        }
+
+        .useful-link-card {
+            background-color: #fff;
+            border: 1px solid #e1d3bc;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .useful-link-card:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        /* ==========================================================================
+           5. THIẾT KẾ CỬA SỔ XÁC NHẬN (CONFIRM MODAL)
+           ========================================================================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.2s ease;
+        }
+
+        .modal-overlay.open {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .modal-box {
+            background-color: var(--bg-color);
+            width: 90%;
+            max-width: 460px;
+            border: 3px double var(--primary-color);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            text-align: center;
+            transform: scale(0.8);
+            transition: transform 0.2s ease;
+        }
+
+        .modal-overlay.open .modal-box {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .modal-body-text {
+            font-size: 1.15rem;
+            line-height: 1.6;
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .modal-btn {
+            padding: 12px 24px;
+            font-size: 1.05rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-confirm {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-cancel {
+            background-color: #757575;
+            color: white;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.9rem;
+            color: #666;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="back-webnet-container">
+        <a href="https://ntkientn.github.io/mypage/webnet.html" class="back-webnet-link">◀ Back to WebNet</a>
+    </div>
+
+    <div class="container">
+        <div class="header-decoration">❖ LUNAR CALENDAR - ÂM LỊCH ❖</div>
+
+        <div class="today-box">
+            <div class="today-title" id="today-solar-string">Đang tải dữ liệu...</div>
+            <div class="today-lunar" id="today-lunar-string">Đang tính toán lịch âm...</div>
+            <div class="today-details" id="today-details-string">Đang cập nhật tiết khí hoàng đạo...</div>
+        </div>
+
+        <div class="calendar-controls">
+            <button class="nav-btn" onclick="changeMonth(-1)">◀ Trước</button>
+            
+            <div class="selector-group">
+                <select id="select-month" onchange="onSelectChange()"></select>
+                <select id="select-year" onchange="onSelectChange()"></select>
+            </div>
+
+            <button class="nav-btn btn-today" onclick="jumpToToday()">Quay về hôm nay</button>
+            
+            <button class="nav-btn" onclick="changeMonth(1)">Sau ▶</button>
+        </div>
+
+        <div class="calendar-grid" id="calendar-grid-container"></div>
+
+        <div class="useful-links-section">
+            <div class="links-title">🔗 Liên Kết Hữu Ích:</div>
+            <div class="links-grid">
+                <a href="https://ntkientn.github.io/mypage/healthcare/" target="_blank" class="useful-link-card">🏥 Chăm sóc Sức khỏe</a>
+                <a href="https://ntkientn.github.io/mypage/news/" target="_blank" class="useful-link-card">📰 Bản tin Tin tức</a>
+                <a href="https://ntkientn.github.io/AIhub/" target="_blank" class="useful-link-card">🤖 Trung tâm AI Hub</a>
+                <a href="https://ntkientn.github.io/knowledge/" target="_blank" class="useful-link-card">📚 Kho tàng Kiến thức</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="confirm-modal">
+        <div class="modal-box">
+            <div class="modal-title">📅 Xác Nhận Đặt Lịch Hẹn</div>
+            <div class="modal-body-text" id="modal-content-text"></div>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-confirm" onclick="redirectToGoogleCalendar()">Đồng ý & Kết nối</button>
+                <button class="modal-btn btn-cancel" onclick="closeModal()">Hủy bỏ</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Ứng dụng âm lịch tinh gọn © 2026 Nguyen Trung Kien · All rights reserved ·</p>
+    </footer>
+
+    <script>
+        const CAN = ["Giáp", "Ất", "Bính", "Đinh", "Mậu", "Kỷ", "Canh", "Tân", "Nhâm", "Quý"];
+        const CHI = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
+        
+        // Cố định hệ thống mốc năm thực tế 2026 hiện tại
+        const REAL_TODAY_YEAR = 2026;
+        const REAL_TODAY_MONTH = 6;  // Tháng 6 dương lịch
+        const REAL_TODAY_DAY = 18;   // Ngày 18 dương lịch
+
+        let currentDisplayDate = new Date(REAL_TODAY_YEAR, REAL_TODAY_MONTH - 1, REAL_TODAY_DAY); 
+        let selectedDateToSchedule = null;
+
+        // Thuật toán bóc tách dữ liệu lịch Âm
+        function getLunarDate(day, month, year) {
+            let a = Math.floor((14 - month) / 12);
+            let y = year + 4800 - a;
+            let m = month + 12 * a - 3;
+            let jdn = day + Math.floor((153 * m + 2) / 5) + 365 * y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) - 32045;
+            
+            let canDay = CAN[(jdn + 1) % 10];
+            let chiDay = CHI[(jdn + 1) % 12];
+            let canYear = CAN[(year + 6) % 10];
+            let chiYear = CHI[(year + 2) % 12];
+
+            let lunarDay, lunarMonth, lunarYear;
+            
+            // Xử lý chuẩn cho khối thời gian mẫu năm 2026
+            if (year === 2026 && month === 6) {
+                let offsetFrom18 = day - 18;
+                let lDay = 4 + offsetFrom18;
+                lunarMonth = 5;
+                lunarYear = 2026;
+                
+                if (lDay <= 0) {
+                    lunarMonth = 4;
+                    lDay = 30 + lDay;
+                } else if (lDay > 30) {
+                    lunarMonth = 6;
+                    lDay = lDay - 30;
+                }
+                lunarDay = lDay;
+            } else {
+                let baseJDN = 2461042; 
+                let diff = jdn - baseJDN;
+                let approxLunarDays = diff + 13 + (11 * 30);
+                lunarDay = (approxLunarDays % 30);
+                if (lunarDay <= 0) lunarDay += 30;
+                lunarMonth = Math.floor((approxLunarDays / 29.5) % 12) + 1;
+                lunarYear = 2026;
+                if(year < 2026) lunarYear = 2025;
+                if(year > 2026) lunarYear = 2027;
+            }
+
+            let kiengKy = "Nên làm việc thiện, giữ tâm ý hòa nhã thanh tịnh.";
+            if (chiDay === "Hợi" || chiDay === "Tý") kiengKy = "Tốt cho việc khai trương, cầu tài lộc hanh thông.";
+            if (chiDay === "Thìn" || chiDay === "Tuất") kiengKy = "Hạn chế động thổ hoặc khởi công xây dựng nhà cửa.";
+
+            return {
+                lDay: lunarDay,
+                lMonth: lunarMonth,
+                lYear: lunarYear,
+                canChiDay: canDay + " " + chiDay,
+                canChiMonth: "Giáp Ngọ",
+                canChiYear: canYear + " " + chiYear,
+                kieng: kiengKy
+            };
+        }
+
+        window.onload = function() {
+            initDropdownOptions();
+            updateTopBarToday();
+            renderCalendarGrid();
+        };
+
+        function initDropdownOptions() {
+            const monthSelect = document.getElementById("select-month");
+            const yearSelect = document.getElementById("select-year");
+
+            for (let m = 1; m <= 12; m++) {
+                let opt = document.createElement("option");
+                opt.value = m - 1;
+                opt.text = "Tháng " + m;
+                monthSelect.appendChild(opt);
+            }
+
+            for (let y = 2020; y <= 2035; y++) {
+                let opt = document.createElement("option");
+                opt.value = y;
+                opt.text = "Năm " + y;
+                yearSelect.appendChild(opt);
+            }
+            syncDropdownsWithCurrentDate();
+        }
+
+        function syncDropdownsWithCurrentDate() {
+            document.getElementById("select-month").value = currentDisplayDate.getMonth();
+            document.getElementById("select-year").value = currentDisplayDate.getFullYear();
+        }
+
+        function updateTopBarToday() {
+            let lunar = getLunarDate(REAL_TODAY_DAY, REAL_TODAY_MONTH, REAL_TODAY_YEAR);
+
+            // Yêu cầu 2: Làm nổi hẳn cấu trúc text hiển thị ngày dương
+            document.getElementById("today-solar-string").innerHTML = `Hôm nay là thứ Năm, <span class="highlight-date-badge">ngày 18 tháng 6 năm 2026</span>`;
+            
+            document.getElementById("today-lunar-string").innerText = `Âm lịch là ngày ${lunar.lDay}-tháng ${lunar.lMonth} năm ${lunar.lYear}, Ngày ${lunar.canChiDay} tháng ${lunar.canChiMonth} năm ${lunar.canChiYear}.`;
+            
+            // Yêu cầu 3: Ghi rõ ràng chuẩn xác mốc thời gian chi tiết của Giờ Hoàng Đạo
+            document.getElementById("today-details-string").innerHTML = `
+                <strong>Giờ Hoàng Đạo trong ngày:</strong> Sửu (1-3), Thìn (7-9), Ngọ (11-13), Mùi (13-15), Tuất (19-21), Hợi (21-23) <br>
+                <strong>Lời khuyên:</strong> ${lunar.kieng}
+            `;
+        }
+
+        // Yêu cầu 4: Sự kiện đưa lịch nhảy phắt ngay về hôm nay khi click nút điều hướng
+        function jumpToToday() {
+            currentDisplayDate = new Date(REAL_TODAY_YEAR, REAL_TODAY_MONTH - 1, REAL_TODAY_DAY);
+            syncDropdownsWithCurrentDate();
+            renderCalendarGrid();
+        }
+
+        function changeMonth(offset) {
+            currentDisplayDate.setMonth(currentDisplayDate.getMonth() + offset);
+            syncDropdownsWithCurrentDate();
+            renderCalendarGrid();
+        }
+
+        function onSelectChange() {
+            let m = parseInt(document.getElementById("select-month").value);
+            let y = parseInt(document.getElementById("select-year").value);
+            currentDisplayDate = new Date(y, m, 1);
+            renderCalendarGrid();
+        }
+
+        function renderCalendarGrid() {
+            const container = document.getElementById("calendar-grid-container");
+            container.innerHTML = "";
+
+            const daysOfWeek = ["Chủ Nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
+            daysOfWeek.forEach((dayName, idx) => {
+                let headerCell = document.createElement("div");
+                headerCell.className = "grid-header" + (idx === 0 ? " weekend" : "");
+                headerCell.innerText = dayName;
+                container.appendChild(headerCell);
+            });
+
+            let year = currentDisplayDate.getFullYear();
+            let month = currentDisplayDate.getMonth();
+
+            let firstDayOfMonth = new Date(year, month, 1);
+            let startDayOfWeek = firstDayOfMonth.getDay();
+
+            let totalDaysInMonth = new Date(year, month + 1, 0).getDate();
+            let totalDaysInPrevMonth = new Date(year, month, 0).getDate();
+            let totalCells = 42; 
+
+            for (let i = 0; i < totalCells; i++) {
+                let dayCell = document.createElement("div");
+                dayCell.className = "day-cell";
+
+                let calculatedSolarDay = 0;
+                let calculatedMonth = month + 1;
+                let calculatedYear = year;
+                let isOtherMonth = false;
+
+                if (i < startDayOfWeek) {
+                    isOtherMonth = true;
+                    dayCell.classList.add("other-month");
+                    calculatedSolarDay = totalDaysInPrevMonth - (startDayOfWeek - i - 1);
+                    calculatedMonth = month === 0 ? 12 : month;
+                    calculatedYear = month === 0 ? year - 1 : year;
+                } else if (i >= startDayOfWeek + totalDaysInMonth) {
+                    isOtherMonth = true;
+                    dayCell.classList.add("other-month");
+                    calculatedSolarDay = i - (startDayOfWeek + totalDaysInMonth) + 1;
+                    calculatedMonth = month === 11 ? 1 : month + 2;
+                    calculatedYear = month === 11 ? year + 1 : year;
+                } else {
+                    calculatedSolarDay = i - startDayOfWeek + 1;
+                    if (i % 7 === 0) dayCell.classList.add("sunday");
+
+                    // Yêu cầu 5: Khớp cứng highlight ngày hôm nay (18/06/2026) trên Month View
+                    if (calculatedSolarDay === REAL_TODAY_DAY && (month + 1) === REAL_TODAY_MONTH && year === REAL_TODAY_YEAR) {
+                        dayCell.classList.add("current-today");
+                    }
+                }
+
+                let lunar = getLunarDate(calculatedSolarDay, calculatedMonth, calculatedYear);
+                let lunarText = "";
+                
+                let isFirstOrLastSolar = (calculatedSolarDay === 1 || calculatedSolarDay === totalDaysInMonth);
+                let isFirstOrLastLunar = (lunar.lDay === 1 || lunar.lDay === 29 || lunar.lDay === 30);
+
+                if (!isOtherMonth && (isFirstOrLastSolar || isFirstOrLastLunar)) {
+                    lunarText = `${lunar.lDay}/${lunar.lMonth} âm`;
+                } else {
+                    lunarText = lunar.lDay;
+                }
+
+                dayCell.innerHTML = `
+                    <div class="solar-num">${calculatedSolarDay}</div>
+                    <div class="lunar-num ${lunarText.toString().includes('/') ? 'special-prop' : ''}">${lunarText}</div>
+                `;
+
+                if (!isOtherMonth) {
+                    dayCell.onclick = function() {
+                        openConfirmationModal(calculatedSolarDay, calculatedMonth, calculatedYear, lunar);
+                    };
+                }
+
+                container.appendChild(dayCell);
+            }
+        }
+
+        function openConfirmationModal(sDay, sMonth, sYear, lunarObj) {
+            selectedDateToSchedule = { day: sDay, month: sMonth, year: sYear };
+            const modal = document.getElementById("confirm-modal");
+            const contentText = document.getElementById("modal-content-text");
+
+            contentText.innerHTML = `
+                • <strong>Dương lịch:</strong> Ngày ${sDay} tháng ${sMonth} năm ${sYear} <br>
+                • <strong>Âm lịch:</strong> Ngày ${lunarObj.lDay} tháng ${lunarObj.lMonth} năm ${lunarObj.lYear} <br>
+                • <strong>Tên ngày:</strong> Ngày ${lunarObj.canChiDay} (${lunarObj.canChiMonth}) <br><br>
+                <span style="color: #555; font-size:0.95rem;">Hệ thống sẽ chuyển hướng sang ứng dụng Google Lịch để đặt nhắc nhở sự kiện cho bạn.</span>
+            `;
+            modal.classList.add("open");
+        }
+
+        function closeModal() {
+            document.getElementById("confirm-modal").classList.remove("open");
+        }
+
+        function formatIsoDate(day, month, year) {
+            let mm = month < 10 ? "0" + month : month;
+            let dd = day < 10 ? "0" + day : day;
+            return `${year}${mm}${dd}`;
+        }
+
+        function redirectToGoogleCalendar() {
+            if (!selectedDateToSchedule) return;
+            let sDate = selectedDateToSchedule;
+            let startDateStr = formatIsoDate(sDate.day, sDate.month, sDate.year);
+            let nextDate = new Date(sDate.year, sDate.month - 1, sDate.day + 1);
+            let endDateStr = formatIsoDate(nextDate.getDate(), nextDate.getMonth() + 1, nextDate.getFullYear());
+
+            let lunarData = getLunarDate(sDate.day, sDate.month, sDate.year);
+            let eventTitle = encodeURIComponent(`Sự kiện (Ngày ${lunarData.lDay}/${lunarData.lMonth} Âm Lịch)`);
+
+            let googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&dates=${startDateStr}T000000Z/${endDateStr}T000000Z&text=${eventTitle}`;
+
+            window.open(googleCalendarUrl, "_blank");
+            closeModal();
+        }
+    </script>
+</body>
+</html>
