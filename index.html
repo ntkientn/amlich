@@ -497,12 +497,13 @@
         const CHI = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
         const THU_TIENG_VIET = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
         
-        // Mốc thời gian hệ thống thực tế năm 2026
-        const REAL_TODAY_YEAR = 2026;
-        const REAL_TODAY_MONTH = 6;  
-        const REAL_TODAY_DAY = 18;   
-
-        let currentDisplayDate = new Date(REAL_TODAY_YEAR, REAL_TODAY_MONTH - 1, REAL_TODAY_DAY); 
+        // Tự động lấy ngày - tháng - năm chính xác theo thời gian thực của thiết bị
+        const sysDate = new Date();
+        const REAL_TODAY_YEAR = sysDate.getFullYear();
+        const REAL_TODAY_MONTH = sysDate.getMonth() + 1; // Tháng trong JS chạy từ 0-11 nên phải +1
+        const REAL_TODAY_DAY = sysDate.getDate();   
+        
+        let currentDisplayDate = new Date(REAL_TODAY_YEAR, REAL_TODAY_MONTH - 1, REAL_TODAY_DAY);
         let selectedDateToSchedule = null;
 
         // Thuật toán bóc tách dữ liệu lịch Âm và sinh lời khuyên phong thủy tự động
