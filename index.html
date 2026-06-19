@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="default-src 'self'; connect-src 'self' https://unpkg.com https://udify.app https://api.dify.ai https://*.udify.app; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://udify.app; style-src 'self' 'unsafe-inline'; frame-src 'self' https://udify.app https://*.udify.app;">    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lunar Calendar - Âm Lịch</title>
     <style>
         /* ==========================================================================
@@ -604,11 +604,17 @@
             };
         }
 
-        window.onload = function() {
-            initDropdownOptions();
-            updateTopBarToday();
-            renderCalendarGrid();
-        };
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                initDropdownOptions();
+                updateTopBarToday();
+                renderCalendarGrid();
+            } catch (err) {
+                console.error('Lỗi khi khởi tạo lịch âm:', err);
+                document.getElementById('today-solar-string').innerHTML =
+                    '⚠️ Có lỗi khi tải dữ liệu. Vui lòng tải lại trang (F5).';
+            }
+        });
 
         function initDropdownOptions() {
             const monthSelect = document.getElementById("select-month");
@@ -806,52 +812,14 @@
     </script>
 
     <script>
-     window.difyChatbotConfig = {
-      token: 'Ed4wgDp8m1CmwT4F',
-      inputs: {
-        // You can define the inputs from the Start node here
-        // key is the variable name
-        // e.g.
-        // name: "NAME"
-      },
-      systemVariables: {
-        // user_id: 'YOU CAN DEFINE USER ID HERE',
-        // conversation_id: 'YOU CAN DEFINE CONVERSATION ID HERE, IT MUST BE A VALID UUID',
-      },
-      userVariables: {
-        // avatar_url: 'YOU CAN DEFINE USER AVATAR URL HERE',
-        // name: 'YOU CAN DEFINE USER NAME HERE',
-      },
-     }
+      window.difyChatbotConfig = {
+        token: 'Ed4wgDp8m1CmwT4F',
+      }
     </script>
     <script
-     src="https://udify.app/embed.min.js"
-     id="Ed4wgDp8m1CmwT4F"
-     defer>
+      src="https://udify.app/embed.min.js"
+      id="Ed4wgDp8m1CmwT4F"
+      defer>
     </script>
-    <style>
-      /* Cấu hình chung */
-      #dify-chatbot-bubble-button {
-        background-color: #8a1414 !important; /* Đổi màu đồng bộ với app lịch của bạn */
-      }
-    
-      /* Mặc định cho Mobile (màn hình nhỏ) */
-      #dify-chatbot-bubble-window {
-        width: 90vw !important; /* Chiếm 90% chiều rộng màn hình điện thoại */
-        height: 80vh !important; /* Chiếm 80% chiều cao màn hình điện thoại */
-        bottom: 80px !important;
-        right: 10px !important;
-      }
-    
-      /* Cấu hình cho Desktop (màn hình lớn hơn 768px) */
-      @media (min-width: 768px) {
-        #dify-chatbot-bubble-window {
-          width: 450px !important;  /* Rộng hơn để hiển thị text thoải mái */
-          height: 600px !important; /* Cao hơn một chút trên máy tính */
-          bottom: 100px !important;
-          right: 20px !important;
-        }
-      }
-    </style>
 </body>
 </html>
