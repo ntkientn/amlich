@@ -112,7 +112,7 @@
         }
 
         .today-lunar {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: bold;
             color: #4a1525;
             margin-bottom: 8px;
@@ -647,7 +647,8 @@
             // Ghi đè chính xác dữ liệu lên giao diện
             document.getElementById("today-solar-string").innerHTML = `Hôm nay là ${currentDayOfWeek}, <span class="highlight-date-badge">ngày ${REAL_TODAY_DAY} tháng ${REAL_TODAY_MONTH} năm ${REAL_TODAY_YEAR}</span>`;
             
-            document.getElementById("today-lunar-string").innerHTML = `Âm lịch là <span class="highlight-lunar-badge">ngày ${lunar.lDay} tháng ${lunar.lMonth}</span> năm ${lunar.lYear}, Ngày ${lunar.canChiDay} tháng ${lunar.canChiMonth} năm ${lunar.canChiYear}.`;            document.getElementById("today-details-string").innerHTML = `
+            document.getElementById("today-lunar-string").innerHTML = `Âm lịch là <span class="highlight-lunar-badge">ngày ${lunar.lDay} tháng ${lunar.lMonth} năm ${lunar.lYear}</span> <br> (Ngày ${lunar.canChiDay} tháng ${lunar.canChiMonth} năm ${lunar.canChiYear}).`;            
+            document.getElementById("today-details-string").innerHTML = `
                 <strong>Giờ Hoàng Đạo trong ngày:</strong> ${lunar.gioHoangDao} <br>
                 <strong>Lời khuyên:</strong> ${lunar.kieng}
             `;
