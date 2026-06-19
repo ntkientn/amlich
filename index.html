@@ -497,10 +497,10 @@
         const CHI = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
         const THU_TIENG_VIET = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
         
-        // Tự động lấy ngày - tháng - năm chính xác theo thời gian thực của thiết bị
-        const REAL_TODAY_YEAR = sysDate.getFullYear();
-        const REAL_TODAY_MONTH = sysDate.getMonth() + 1; // Tháng trong JS chạy từ 0-11 nên phải +1
-        const REAL_TODAY_DAY = sysDate.getDate();   
+        // Tự động lấy chuẩn ngày - tháng - năm thực tế từ máy tính/điện thoại
+        const REAL_TODAY_YEAR = new Date().getFullYear();
+        const REAL_TODAY_MONTH = new Date().getMonth() + 1; 
+        const REAL_TODAY_DAY = new Date().getDate();  
         
         let currentDisplayDate = new Date(REAL_TODAY_YEAR, REAL_TODAY_MONTH - 1, REAL_TODAY_DAY);
         let selectedDateToSchedule = null;
