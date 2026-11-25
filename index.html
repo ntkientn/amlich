@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta content="default-src 'self'; connect-src 'self' https://unpkg.com https://udify.app https://api.dify.ai https://*.udify.app; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://udify.app; style-src 'self' 'unsafe-inline'; frame-src 'self' https://udify.app https://*.udify.app;">    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lunar Calendar - Âm Lịch</title>
-    <!-- FAVICON VÀ APP ICON ĐÃ CẢI TIẾN (CANH GIỮA, NỀN VÀNG NHẠT, BIỂU TƯỢNG ☯ NÂU ĐỎ TO RÕ) -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%23fcf6e8' stroke='%238a1414' stroke-width='3'/><text x='50' y='51' text-anchor='middle' dominant-baseline='central' font-size='88' fill='%238a1414'>☯</text></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%23fcf6e8' stroke='%238a1414' stroke-width='3'/><text x='50' y='51' text-anchor='middle' dominant-baseline='central' font-size='88' fill='%238a1414'>☯</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☯</text></svg>">
     <style>
         /* ==========================================================================
            1. THIẾT LẬP MÀU SẮC & PHONG CÁCH ĐÔNG PHƯƠNG
@@ -34,28 +32,6 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
-
-        .back-webnet-container {
-            width: 100%;
-            max-width: 800px;
-            text-align: left;
-            margin-bottom: 8px;
-        }
-
-        .back-webnet-link {
-            font-size: 0.9rem;
-            color: #666;
-            text-decoration: none;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            transition: color 0.2s;
-        }
-
-        .back-webnet-link:hover {
-            color: var(--primary-color);
-            text-decoration: underline;
         }
 
         .container {
@@ -434,13 +410,62 @@
             width: 100%;
             max-width: 800px;
         }
+
+        /* ==========================================================================
+           7. CHỐNG TRÀN GIAO DIỆN TRÊN MOBILE (RESPONSIVE)
+           ========================================================================== */
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .calendar-grid {
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .grid-header, .day-cell {
+            min-width: 0; /* Ép các cột co lại vừa khít màn hình, không đẩy tràn */
+            word-wrap: break-word;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 6px;
+            }
+            .container {
+                padding: 10px 8px;
+            }
+            .header-decoration {
+                font-size: 1.25rem;
+                letter-spacing: 1px;
+            }
+            .grid-header {
+                font-size: 0.8rem;
+                padding: 8px 2px;
+            }
+            .day-cell {
+                min-height: 68px;
+                padding: 4px;
+            }
+            .solar-num {
+                font-size: 1.15rem;
+            }
+            .lunar-num {
+                font-size: 0.8rem;
+            }
+            .lunar-num.special-prop {
+                font-size: 0.72rem;
+                padding: 1px 2px;
+            }
+            /* Ẩn chữ hover trên mobile để tránh chật ô */
+            .day-cell:not(.other-month)::after {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
-
-    <div class="back-webnet-container">
-        <a href="https://ntkientn.github.io/webnet/" class="back-webnet-link">◀ Back to WebNet</a>
-    </div>
 
     <div class="container">
         <div class="header-decoration">❖ LUNAR CALENDAR - ÂM LỊCH ❖</div>
@@ -502,7 +527,8 @@
     </div>
 
     <footer>
-        <p>Lunar Calendar © 2026 Nguyen Trung Kien · All rights reserved ·</p>
+        <p>Âm Lịch - Luna Calendar — Part of <a href="https://ntkientn.github.io/webnet" style="color: var(--primary-color); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; letter-spacing: 0.3px;">My WebNet</a></p>
+        <p style="margin-top: 4px;">© 2026 Kien NT • All rights reserved.</p>
     </footer>
 
     <script>
